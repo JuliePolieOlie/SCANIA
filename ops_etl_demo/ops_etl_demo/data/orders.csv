@@ -1,0 +1,7 @@
+order_id,order_date,qty,plant
+A001,2026-01-10,10,Sodertalje
+A002,2026-01-10,5,Sodertalje
+A003,2026-01-10,12,Oskarshamn
+A004,2026-01-11,7,Sodertalje
+A005,2026-01-11,9,Oskarshamn
+A006,2026-01-12,3,Sodertalje
