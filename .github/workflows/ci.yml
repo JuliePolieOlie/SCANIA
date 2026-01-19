@@ -47,3 +47,13 @@ jobs:
       - name: Run tests
         run: |
           pytest -q ops_etl_demo/tests
+
+      - name: Run ETL
+        run: |
+          python -m src.run_etl
+        working-directory: ops_etl_demo
+
+      - name: Verify mart output
+        run: |
+          PGPASSWORD=app psql -h 127.0.0.1 -p 5433 -U app -d ops -c "select count(*) as kpi_rows from mart.kpi_daily;"
+          PGPASSWORD=app psql -h 127.0.0.1 -p 5433 -U app -d ops -c "select * from mart.kpi_daily order by kpi_date, plant;"
