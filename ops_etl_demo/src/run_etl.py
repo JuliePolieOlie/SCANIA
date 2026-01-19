@@ -5,11 +5,12 @@ from psycopg2.extras import execute_values
 from src.config import DB_URL, DATA_PATH
 from src.lineage import new_run_id, utc_now, file_hash
 
+
 def upsert_raw_orders(cur, df: pd.DataFrame):
     rows = list(df[["order_id", "order_date", "qty", "plant"]].itertuples(index=False, name=None))
     sql = """
     insert into raw.orders(order_id, order_date, qty, plant)
-    values 
+    values %s
     on conflict (order_id) do update
       set order_date = excluded.order_date,
           qty = excluded.qty,
@@ -17,16 +18,18 @@ def upsert_raw_orders(cur, df: pd.DataFrame):
     """
     execute_values(cur, sql, rows)
 
+
 def upsert_mart_kpi(cur, kpi: pd.DataFrame):
     rows = list(kpi[["kpi_date", "plant", "orders", "total_qty"]].itertuples(index=False, name=None))
     sql = """
     insert into mart.kpi_daily(kpi_date, plant, orders, total_qty)
-    values 
+    values %s
     on conflict (kpi_date, plant) do update
       set orders = excluded.orders,
           total_qty = excluded.total_qty
     """
     execute_values(cur, sql, rows)
+
 
 def main():
     run_id = new_run_id()
@@ -39,7 +42,7 @@ def main():
 
     try:
         cur.execute(
-            "insert into meta.runs(run_id, started_at, input_hash, status) values (,,,)",
+            "insert into meta.runs(run_id, started_at, input_hash, status) values (%s,%s,%s,%s)",
             (run_id, started_at, input_sha, "RUNNING"),
         )
 
@@ -61,7 +64,7 @@ def main():
 
         finished_at = utc_now()
         cur.execute(
-            "update meta.runs set finished_at=, status=, rowcount_raw=, rowcount_mart= where run_id=",
+            "update meta.runs set finished_at=%s, status=%s, rowcount_raw=%s, rowcount_mart=%s where run_id=%s",
             (finished_at, "SUCCEEDED", len(df), len(kpi), run_id),
         )
 
@@ -72,7 +75,7 @@ def main():
         conn.rollback()
         finished_at = utc_now()
         cur.execute(
-            "update meta.runs set finished_at=, status= where run_id=",
+            "update meta.runs set finished_at=%s, status=%s where run_id=%s",
             (finished_at, "FAILED", run_id),
         )
         conn.commit()
@@ -81,6 +84,7 @@ def main():
     finally:
         cur.close()
         conn.close()
+
 
 if __name__ == "__main__":
     main()

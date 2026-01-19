@@ -6,11 +6,13 @@ from src.config import DB_URL, DATA_PATH
 
 REQUIRED_COLS = ["order_id", "order_date", "qty", "plant"]
 
+
 def write_result(cur, run_id: str, check_name: str, passed: bool, details: dict):
     cur.execute(
-        "insert into meta.dq_results(run_id, check_name, passed, details) values (,,,)",
+        "insert into meta.dq_results(run_id, check_name, passed, details) values (%s,%s,%s,%s)",
         (run_id, check_name, passed, json.dumps(details)),
     )
+
 
 def run_checks(run_id: str):
     conn = psycopg2.connect(DB_URL)
