@@ -36,14 +36,14 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r ops_etl_demo/requirements.txt
 
       - name: Init DB
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql-client
-          psql "" -f sql/00_init.sql
+          psql "" -f ops_etl_demo/sql/00_init.sql
 
       - name: Run tests
         run: |
-          pytest -q
+          pytest -q ops_etl_demo/tests
