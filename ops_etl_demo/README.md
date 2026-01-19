@@ -40,3 +40,4 @@ docker compose exec -T postgres psql -U app -d ops -c "select * from mart.kpi_da
 docker compose exec -T postgres psql -U app -d ops -c "select * from meta.runs order by started_at desc limit 5;"
 docker compose exec -T postgres psql -U app -d ops -c "select run_id, check_name, passed from meta.dq_results order by created_at desc limit 20;"
 ```
+
